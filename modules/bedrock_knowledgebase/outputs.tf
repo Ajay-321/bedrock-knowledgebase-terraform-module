@@ -41,3 +41,12 @@ output "knowledge_base_ARN" {
 output "s3_bucket_name" {
   value = data.aws_s3_bucket.resource_kb.bucket
 }
+output "iam_role_arn" {
+  description = "ARN of the IAM role used by the Bedrock Knowledge Base"
+  value       = local.resolved_role_arn
+}
+
+output "deprecation_warning" {
+  description = "Deprecation warning for bedrock_iam_role_name variable"
+  value       = local.deprecation_warning
+}

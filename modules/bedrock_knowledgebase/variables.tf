@@ -15,16 +15,14 @@ variable "bedrock_knowledgebase_bucket" {
   type        = string
 }
 
-variable "kb_oss_collection_name" {
-  description = "The name of the OSS collection for the knowledge base."
+variable "opensearch_collection_arn" {
+  description = "ARN of the OpenSearch Serverless collection"
   type        = string
-  default     = "bedrock-resource-kb"
 }
 
-variable "vector_dimension" {
-  description = "The dimension of the vectors produced by the model."
-  type        = number
-  default     = 1024
+variable "opensearch_index_name" {
+  description = "Name of the OpenSearch index"
+  type        = string
 }
 
 variable "chunking_strategy" {
@@ -106,12 +104,29 @@ variable "aws_region" {
 
 variable "bedrock_iam_role_name" {
   type        = string
-  description = "IAM Role Arn with Access of Bedrock and Opensearch Serverless"
+  description = "DEPRECATED: Use iam_role_arn or iam_role_reference instead. IAM role name for backward compatibility. This will be removed in a future version."
+  default     = null
 }
 
-variable "vector_index_name" {
+variable "iam_role_arn" {
+  description = "ARN of an existing IAM role to use for the Bedrock Knowledge Base. Mutually exclusive with iam_role_reference."
   type        = string
-  description = "Opensearch Serverless Index Name for Bedrock Knowledgebase"
+  default     = null
+
+  validation {
+    condition     = var.iam_role_arn == null || can(regex("^arn:aws:iam::[0-9]{12}:role/.+", var.iam_role_arn))
+    error_message = "The iam_role_arn must be a valid IAM role ARN in the format: arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"
+  }
+}
+
+variable "iam_role_reference" {
+  description = "Reference to an existing IAM role resource. Mutually exclusive with iam_role_arn. Pass the role object (e.g., module.bedrock_iam_role)."
+  type = object({
+    arn  = string
+    name = string
+    id   = string
+  })
+  default = null
 }
 
 variable "kms_key_id" {

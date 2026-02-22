@@ -1,7 +1,7 @@
 # Knowledge base resource creation
 resource "aws_bedrockagent_knowledge_base" "resource_kb" {
   name     = local.bedrock_kb_name
-  role_arn = "arn:aws:iam::${data.aws_caller_identity.this.account_id}:role/${var.bedrock_iam_role_name}"
+  role_arn = local.resolved_role_arn
   knowledge_base_configuration {
     vector_knowledge_base_configuration {
       embedding_model_arn = local.bedrock_model_arn
@@ -11,8 +11,8 @@ resource "aws_bedrockagent_knowledge_base" "resource_kb" {
   storage_configuration {
     type = "OPENSEARCH_SERVERLESS"
     opensearch_serverless_configuration {
-      collection_arn    = aws_opensearchserverless_collection.resource_kb.arn
-      vector_index_name = var.vector_index_name
+      collection_arn    = var.opensearch_collection_arn
+      vector_index_name = var.opensearch_index_name
       field_mapping {
         vector_field   = "bedrock-knowledge-base-default-vector"
         text_field     = "AMAZON_BEDROCK_TEXT_CHUNK"
@@ -20,12 +20,6 @@ resource "aws_bedrockagent_knowledge_base" "resource_kb" {
       }
     }
   }
-  depends_on = [
-    opensearch_index.resource_kb,
-    aws_opensearchserverless_access_policy.resource_kb,
-    aws_opensearchserverless_security_policy.resource_kb_encryption,
-    aws_opensearchserverless_security_policy.resource_kb_network
-  ]
   tags = var.common_tags
 }
 
